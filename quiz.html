@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <link rel="stylesheet" href="quiz.css"> <!-- Link to external CSS file -->
+</head>
+<body>
+    <div class="app"> <!-- Container for the entire application -->
+        <h1>Simple Quiz</h1> <!-- Title of the quiz application -->
+        <div class="quiz"> <!-- Container for the quiz -->
+            <h2 id="question">Question goes here</h2> <!-- Placeholder for the question -->
+            <div class="answer-buttons">
+                <!-- Container for answer buttons (will be dynamically added here) -->
+            </div>
+            <button class="next-btn">Next</button> <!-- Button to proceed to the next question -->
+        </div>
+    </div>
+
+    <script>
+        const questions = [ <!-- Array of questions and their corresponding answers -->
+            {
+                question: "Which is the largest animal in the world?",
+                answers: [
+                    { text: "Shark", correct: false }, <!-- Answer option with its correctness flag -->
+                    { text: "Blue whale", correct: true },
+                    { text: "Elephant", correct: false },
+                    { text: "Giraffe", correct: false }
+                ]
+            },
+            {
+                question: "1 + 1 equals?",
+                answers: [
+                    { text: "1", correct: false },
+                    { text: "2", correct: true },
+                    { text: "3", correct: false },
+                    { text: "4", correct: false }
+                ]
+            }
+        ];
+
+        const questionElement = document.getElementById("question"); <!-- Reference to the question element -->
+        const answerButtons = document.querySelector(".answer-buttons"); <!-- Reference to the container for answer buttons -->
+        const nextButton = document.querySelector(".next-btn"); <!-- Reference to the next button -->
+
+        let currentQuestionIndex = 0; <!-- Index to keep track of the current question -->
+        let score = 0; <!-- Variable to keep track of the user's score -->
+
+        function startQuiz() {
+            currentQuestionIndex = 0; <!-- Initialize current question index -->
+            score = 0; <!-- Initialize score -->
+            nextButton.innerHTML = "Next"; <!-- Set next button text -->
+            showQuestion(); <!-- Display the first question -->
+        }
+
+        function showQuestion() {
+            resetState(); <!-- Reset the state of the quiz -->
+            const currentQuestion = questions[currentQuestionIndex]; <!-- Get current question object -->
+            questionElement.innerText = currentQuestion.question; <!-- Display current question -->
+            currentQuestion.answers.forEach(answer => {
+                const button = document.createElement("button"); <!-- Create button for each answer option -->
+                button.innerText = answer.text; <!-- Set button text to answer option -->
+                button.classList.add("btn"); <!-- Add 'btn' class to button -->
+                if (answer.correct) {
+                    button.dataset.correct = "true"; <!-- Set data attribute for correct answer -->
+                }
+                button.addEventListener("click", selectAnswer); <!-- Add event listener to button -->
+                answerButtons.appendChild(button); <!-- Append button to answer buttons container -->
+            });
+        }
+
+        function resetState() {
+            nextButton.style.display = "none"; <!-- Hide next button -->
+            while (answerButtons.firstChild) {
+                answerButtons.removeChild(answerButtons.firstChild); <!-- Remove all answer buttons -->
+            }
+        }
+
+        function selectAnswer(e) {
+            const selectedBtn = e.target; <!-- Get the clicked button -->
+            const isCorrect = selectedBtn.dataset.correct === "true"; <!-- Check if the selected answer is correct -->
+            if (isCorrect) {
+                selectedBtn.classList.add("correct"); <!-- Add 'correct' class to selected button -->
+                score++; <!-- Increment score -->
+            } else {
+                selectedBtn.classList.add("incorrect"); <!-- Add 'incorrect' class to selected button -->
+                const correctBtn = [...answerButtons.children].find(btn => btn.dataset.correct === "true"); <!-- Find the correct answer button -->
+                correctBtn.classList.add("correct"); <!-- Highlight the correct answer -->
+            }
+            Array.from(answerButtons.children).forEach(button => {
+                button.disabled = true; <!-- Disable all answer buttons -->
+            });
+            nextButton.style.display = "block"; <!-- Display next button -->
+        }
+
+        function showScore() {
+            resetState(); <!-- Reset the state of the quiz -->
+            questionElement.innerHTML = `You scored ${score} out of ${questions.length}!`; <!-- Display user's score -->
+            nextButton.innerHTML = "Play again"; <!-- Change next button text -->
+            nextButton.style.display = "block"; <!-- Display next button -->
+        }
+
+        function handleNextButton() {
+            currentQuestionIndex++; <!-- Move to the next question -->
+            if (currentQuestionIndex < questions.length) {
+                showQuestion(); <!-- Display the next question -->
+            } else {
+                showScore(); <!-- Display user's score when all questions are answered -->
+            }
+        }
+
+        nextButton.addEventListener("click", () => { <!-- Add event listener to next button -->
+            if (currentQuestionIndex < questions.length) {
+                handleNextButton(); <!-- Handle next button click -->
+            } else {
+                startQuiz(); <!-- Restart the quiz when all questions are answered -->
+            }
+        });
+
+        startQuiz(); <!-- Automatically start the quiz when the page loads -->
+    </script>
+</body>
+</html>
